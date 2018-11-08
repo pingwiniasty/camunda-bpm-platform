@@ -14,6 +14,7 @@ package org.camunda.bpm.engine.impl.jobexecutor.historycleanup;
 
 import org.camunda.bpm.engine.impl.ProcessEngineLogger;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 import org.camunda.bpm.engine.impl.jobexecutor.JobExecutorLogger;
 import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
@@ -44,7 +45,9 @@ public class HistoryCleanupSchedulerCmd implements org.camunda.bpm.engine.impl.i
 
   @Override
   public Void execute(CommandContext commandContext) {
-    reportMetrics(commandContext);
+    if (isMetricsEnabled()) {
+      reportMetrics(commandContext);
+    }
 
     JobEntity jobEntity = commandContext.getJobManager().findJobById(jobId);
 
@@ -111,4 +114,9 @@ public class HistoryCleanupSchedulerCmd implements org.camunda.bpm.engine.impl.i
     }
   }
 
+  protected boolean isMetricsEnabled() {
+    return Context
+        .getProcessEngineConfiguration()
+        .isHistoryCleanupMetricsEnabled();
+  }
 }
